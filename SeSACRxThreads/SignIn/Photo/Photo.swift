@@ -7,6 +7,7 @@
 
 import Foundation
 
+// 성공
 struct Photo: Decodable {
     let id: String
     let weight: Int?
@@ -16,4 +17,9 @@ struct Photo: Decodable {
 
 struct ImageURL: Decodable {
     let regular: String
+}
+
+// 실패
+struct PhotoError: Decodable {
+    let errors: [String]
 }

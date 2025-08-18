@@ -31,8 +31,8 @@ class SignInViewController: UIViewController {
     
     @objc func signInButtonClicked() {
         PhotoManager.shared.getRandomPhoto(api: .random) { photo in
-            print("random", photo)
-            self.photoImageView.kf.setImage(with: URL(string: photo.urls.regular))
+//            print("random", photo)
+//            self.photoImageView.kf.setImage(with: URL(string: photo.urls.regular))
         }
     }
     
