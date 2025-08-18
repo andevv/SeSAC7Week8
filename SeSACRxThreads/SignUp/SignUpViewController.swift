@@ -16,6 +16,8 @@ class SignUpViewController: UIViewController {
     let validationButton = UIButton()
     let nextButton = PointButton(title: "다음")
     
+    let disposeBag = DisposeBag()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -24,12 +26,13 @@ class SignUpViewController: UIViewController {
         configureLayout()
         configure()
         
-        nextButton.addTarget(self, action: #selector(nextButtonClicked), for: .touchUpInside)
+        nextButton
+            .rx
+            .tap
+            .map { "안녕하세요" }
+            .bind(to: emailTextField.rx.text)
+            .disposed(by: disposeBag)
 
-    }
-    
-    @objc func nextButtonClicked() {
-        navigationController?.pushViewController(PasswordViewController(), animated: true)
     }
 
     func configure() {
