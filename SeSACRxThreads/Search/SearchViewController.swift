@@ -14,12 +14,7 @@ class SearchViewController: UIViewController {
     
     let disposeBag = DisposeBag()
     
-    let data = [
-        "First Item",
-        "Second Item",
-        "Third Item"
-    ]
-    lazy var items = Observable.just(data)
+    var items = BehaviorSubject(value: ["First Item", "Second Item", "Third Item"])
    
     private let tableView: UITableView = {
        let view = UITableView()
@@ -63,6 +58,29 @@ class SearchViewController: UIViewController {
     
     func bind() {
         print(#function)
+        
+        searchBar.rx.text.orEmpty
+            .debounce(.seconds(1), scheduler: MainScheduler.instance)
+            .distinctUntilChanged()
+            .subscribe(with: self) { owner, value in
+                print("searchBar text", value)
+                
+                let all = try! owner.items.value()
+                let filter = all.filter { $0.contains(value) }
+                print(filter)
+            }
+            .disposed(by: disposeBag)
+        
+//        searchBar.rx.searchButtonClicked
+//            .subscribe(with: self) { owner, _ in
+//                print("클릭")
+//                guard let text = owner.searchBar.text else { return }
+//                var result = try! owner.items.value() // 기존 데이터 조회
+//                result.append(text)
+//                owner.items.onNext(result)
+//            }
+//            .disposed(by: disposeBag)
+
         
         items //observable
         .bind(to: tableView.rx.items) { (tableView, row, element) in
