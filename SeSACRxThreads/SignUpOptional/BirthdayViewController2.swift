@@ -7,12 +7,8 @@
  
 import UIKit
 import SnapKit
-import RxSwift
-import RxCocoa
 
-class BirthdayViewController: UIViewController {
-    
-    let disposeBag = DisposeBag()
+class BirthdayViewController2: UIViewController {
     
     let birthDayPicker: UIDatePicker = {
         let picker = UIDatePicker()
@@ -34,7 +30,7 @@ class BirthdayViewController: UIViewController {
         let stack = UIStackView()
         stack.axis = .horizontal
         stack.distribution = .equalSpacing
-        stack.spacing = 10 
+        stack.spacing = 10
         return stack
     }()
     
@@ -70,47 +66,18 @@ class BirthdayViewController: UIViewController {
   
     let nextButton = PointButton(title: "가입하기")
     
-    let userDate = BehaviorRelay(value: Date()) // 오류 이벤트 없을 때 (.bind와 짝꿍)
-    //BehaviorSubject(value: Date())
-    
     override func viewDidLoad() {
         super.viewDidLoad()
 
         view.backgroundColor = Color.white
         
         configureLayout()
-        bind()
         
         nextButton.addTarget(self, action: #selector(nextButtonClicked), for: .touchUpInside)
     }
     
     @objc func nextButtonClicked() {
         navigationController?.pushViewController(SearchViewController(), animated: true)
-    }
-    
-    func bind() {
-        birthDayPicker.rx.date
-            .bind(with: self) { owner, date in
-                print(date)
-                owner.userDate.accept(date)
-            }
-            .disposed(by: disposeBag)
-        
-//        birthDayPicker.rx.date
-//            .asDriver() // 메인 쓰레드 동작을 보장함
-//            .drive(with: self) { owner, date in
-//                owner.userDate.accept(date)
-//            }
-//            .disposed(by: disposeBag)
-        
-        userDate
-            .bind(with: self) { owner, date in
-                let components = Calendar.current.dateComponents([.year, .month, .day], from: date)
-                owner.yearLabel.text = "\(components.year!)년"
-                owner.monthLabel.text = "\(components.month!)월"
-                owner.dayLabel.text = "\(components.day!)일"
-            }
-            .disposed(by: disposeBag)
     }
 
     
