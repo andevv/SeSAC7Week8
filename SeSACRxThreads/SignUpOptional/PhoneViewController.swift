@@ -12,6 +12,8 @@ import RxCocoa
 
 class PhoneViewController: UIViewController {
     
+    private let viewModel = SecondPhoneViewModel()
+    
     private let disposeBag = DisposeBag()
     
     let limitNumber = 8
@@ -31,27 +33,13 @@ class PhoneViewController: UIViewController {
     }
     
     func bind() {
-        //버튼 클릭 -> 레이블 내용
-        nextButton.rx.tap
-            .withLatestFrom(phoneTextField.rx.text.orEmpty)
-            .map { text in
-                text.count >= 8 ? "통과" : "8자 이상 입력해주세요"
-            }
+        
+        let input = SecondPhoneViewModel.Input(buttonTap: nextButton.rx.tap, text: phoneTextField.rx.text.orEmpty)
+        let output = viewModel.transform(input: input)
+        
+        output.text
             .bind(to: resultLabel.rx.text)
             .disposed(by: disposeBag)
-
-        //텍스트필드가 달라질 때마다 레이블에 내용 출력
-//        phoneTextField.rx.text.orEmpty //String
-//            .withUnretained(self) //self, value
-//            .debug("orEmpty")
-//            .map { owner, text in
-//                text.count >= owner.limitNumber
-//            }
-//            .debug("map")
-//            .bind(with: self) { owner, value in
-//                owner.resultLabel.text = value ? "통과" : "8자 이상을 입력해주세요"
-//            }
-//            .disposed(by: disposeBag)
     }
     
     func configureLayout() {
