@@ -7,8 +7,12 @@
 
 import UIKit
 import SnapKit
+import RxSwift
+import RxCocoa
 
 final class SearchTableViewCell: UITableViewCell {
+    
+    var disposeBag = DisposeBag()
     
     static let identifier = "SearchTableViewCell"
     
@@ -38,6 +42,11 @@ final class SearchTableViewCell: UITableViewCell {
         return button
     }()
      
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        
+        disposeBag = DisposeBag()
+    }
      
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)

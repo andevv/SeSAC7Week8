@@ -14,7 +14,8 @@ class SearchViewController: UIViewController {
     
     let disposeBag = DisposeBag()
     
-    var items = BehaviorSubject(value: ["First Item", "Second Item", "Third Item"])
+    var data = ["김새싹", "고래", "고래밥", "새싹", "김김김", "AAA" ,"ABB", "BBB"]
+    lazy var items = BehaviorSubject(value: data)
    
     private let tableView: UITableView = {
        let view = UITableView()
@@ -59,57 +60,52 @@ class SearchViewController: UIViewController {
     func bind() {
         print(#function)
         
+        //서치바에 입력 후 엔터치면 배열에 데이터 추가
+//        searchBar.rx.searchButtonClicked
+//            .withLatestFrom(searchBar.rx.text.orEmpty)
+//            .bind(with: self) { owner, value in
+//                print(value)
+//                owner.data.insert(value, at: 0)
+//                owner.items.onNext(owner.data)
+//                
+//            }
+//            .disposed(by: disposeBag)
+        
+        //실시간 검색
         searchBar.rx.text.orEmpty
             .debounce(.seconds(1), scheduler: MainScheduler.instance)
             .distinctUntilChanged()
-            .subscribe(with: self) { owner, value in
-                print("searchBar text", value)
+            .bind(with: self) { owner, value in
+                print(value)
                 
-                let all = try! owner.items.value()
-                let filter = all.filter { $0.contains(value) }
-                print(filter)
+                let filter = value.isEmpty ? owner.data : owner.data.filter { $0.contains(value) }
+                owner.items.onNext(filter)
             }
             .disposed(by: disposeBag)
-        
-//        searchBar.rx.searchButtonClicked
-//            .subscribe(with: self) { owner, _ in
-//                print("클릭")
-//                guard let text = owner.searchBar.text else { return }
-//                var result = try! owner.items.value() // 기존 데이터 조회
-//                result.append(text)
-//                owner.items.onNext(result)
-//            }
-//            .disposed(by: disposeBag)
-
         
         items //observable
         .bind(to: tableView.rx.items) { (tableView, row, element) in
             let cell = tableView.dequeueReusableCell(withIdentifier: SearchTableViewCell.identifier) as! SearchTableViewCell
             cell.appNameLabel.text = "\(element) @ row \(row)"
+            
+            cell.downloadButton.rx.tap
+                .bind(with: self) { owner, _ in
+                    print("클릭되었습니다")
+                    let vc = DetailViewController()
+                    owner.navigationController?.pushViewController(vc, animated: true)
+                }
+                .disposed(by: cell.disposeBag)
             return cell
         }
         .disposed(by: disposeBag)
         
-//        tableView.rx.itemSelected
-//            .bind(with: self) { owner, indexPath in
-//                print(indexPath)
-//                print(owner.data[indexPath.row])
-//            }
-//            .disposed(by: disposeBag)
-//        
-//        tableView.rx.modelSelected(String.self)
-//            .bind(with: self) { owner, value in
-//                print(value)
-//            }
-//            .disposed(by: disposeBag)
         
-        Observable.combineLatest(
+        Observable.zip(
             tableView.rx.modelSelected(String.self),
             tableView.rx.itemSelected
         )
         .bind(with: self) { owner, value in
-            print(value.0)
-            print(value.1)
+            print(value)
         }
         .disposed(by: disposeBag)
     }
