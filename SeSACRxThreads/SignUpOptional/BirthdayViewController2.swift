@@ -96,8 +96,14 @@ class BirthdayViewController2: UIViewController {
         //datePicker 날짜 input
         //y, m, d output
         
-        let input = BirthdayViewModel.Input(datePicker: birthDayPicker.rx.date)
+        let input = BirthdayViewModel.Input()
         let output = viewModel.transform(input: input)
+        
+        birthDayPicker.rx.date
+            .subscribe(with: self) { owner, date in
+                owner.viewModel.date.onNext(date)
+            }
+            .disposed(by: disposeBag)
         
         output.year
             .observe(on: MainScheduler.instance)

@@ -14,8 +14,10 @@ final class BirthdayViewModel {
     let disposeBag = DisposeBag()
     
     struct Input {
-        let datePicker: ControlProperty<Date>
+        //let datePicker: BehaviorSubject<Date>
     }
+    
+    let date: BehaviorSubject<Date> = BehaviorSubject(value: .now)
     
     struct Output {
         let year: BehaviorSubject<String>
@@ -31,7 +33,8 @@ final class BirthdayViewModel {
         let month = BehaviorSubject(value: "8")
         let day = BehaviorSubject(value: "22")
         
-        input.datePicker
+        //input.datePicker
+        date
             .bind(with: self) { owner, date in
                 
                 let component = Calendar.current.dateComponents([.year, .month, .day], from: date)
