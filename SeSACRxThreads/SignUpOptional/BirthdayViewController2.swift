@@ -86,22 +86,46 @@ class BirthdayViewController2: UIViewController {
         
         configureLayout()
         bind()
-        aboutPublishSubject()
-        aboutBehaviorSubject()
+        //aboutPublishSubject()
+        //aboutBehaviorSubject()
         
     }
     
     func bind() {
-        text
-            .bind(to: infoLabel.rx.text)
+        
+        //스트림이 공유되고 있지 않다.
+        //버튼이 세번 클릭되는 현상
+        //네트워크 콜을 3번 시도하는 상황이 될 수 있음
+        //.share() 사용
+        
+        let tap = nextButton.rx.tap
+            .map { "랜덤 \(Int.random(in: 1...100))" }
+            .share()
+        
+        tap
+            .bind(to: yearLabel.rx.text)
             .disposed(by: disposeBag)
         
-        nextButton.rx.tap
-            .bind(with: self) { owner, _ in
-                print("가능 가능")
-                owner.text.onNext("가입 가능")
-            }
+        tap
+            .bind(to: monthLabel.rx.text)
             .disposed(by: disposeBag)
+        
+        tap
+            .bind(to: dayLabel.rx.text)
+            .disposed(by: disposeBag)
+        
+//        text
+//            .asDriver(onErrorJustReturn: "unknown")
+//            .drive(yearLabel.rx.text)
+//            .disposed(by: disposeBag)
+//
+//        nextButton.rx.tap
+//            .asDriver()
+//            .drive(with: self) { owner, _ in
+//                owner.infoLabel.text = "입력했어요"
+//                owner.text.onError(JackError.invalid)
+//            }
+//            .disposed(by: disposeBag)
     }
     
     func aboutPublishSubject() {
