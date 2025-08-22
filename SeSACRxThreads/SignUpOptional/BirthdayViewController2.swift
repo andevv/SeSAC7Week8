@@ -100,18 +100,18 @@ class BirthdayViewController2: UIViewController {
         
         let tap = nextButton.rx.tap
             .map { "랜덤 \(Int.random(in: 1...100))" }
-            .share()
+            .asDriver(onErrorJustReturn: "")
         
         tap
-            .bind(to: yearLabel.rx.text)
+            .drive(yearLabel.rx.text)
             .disposed(by: disposeBag)
         
         tap
-            .bind(to: monthLabel.rx.text)
+            .drive(monthLabel.rx.text)
             .disposed(by: disposeBag)
         
         tap
-            .bind(to: dayLabel.rx.text)
+            .drive(dayLabel.rx.text)
             .disposed(by: disposeBag)
         
 //        text
