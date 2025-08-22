@@ -18,7 +18,9 @@ class PhoneViewModel {
     }
     
     struct Output {
-        let text: BehaviorSubject<String>
+        let text: PublishSubject<String>
+        let placeholder: BehaviorSubject<String>
+        let next: BehaviorSubject<String>
     }
     
     init() {
@@ -27,7 +29,9 @@ class PhoneViewModel {
     
     func transform(input: Input) -> Output {
         
-        let text = BehaviorSubject(value: "")
+        let text = PublishSubject<String>()
+        let ph = BehaviorSubject(value: "연락처를 입력해주세요")
+        let next = BehaviorSubject(value: "다음")
         
         // 버튼 클릭 시 subject
         input.buttonTap
@@ -36,6 +40,6 @@ class PhoneViewModel {
             }
             .disposed(by: disposeBag)
         
-        return Output(text: text)
+        return Output(text: text, placeholder: ph, next: next)
     }
 }

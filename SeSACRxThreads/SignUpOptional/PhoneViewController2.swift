@@ -40,6 +40,14 @@ class PhoneViewController2: UIViewController {
         output.text
             .bind(to: phoneTextField.rx.text)
             .disposed(by: disposeBag)
+        
+        output.next
+            .bind(to: nextButton.rx.title())
+            .disposed(by: disposeBag)
+        
+        output.placeholder
+            .bind(to: phoneTextField.rx.placeholder)
+            .disposed(by: disposeBag)
     }
 
     

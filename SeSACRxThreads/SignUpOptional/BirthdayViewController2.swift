@@ -7,9 +7,15 @@
  
 import UIKit
 import SnapKit
+import RxSwift
+import RxCocoa
+
+enum JackError: Error {
+    case invalid
+}
 
 class BirthdayViewController2: UIViewController {
-    
+        
     let birthDayPicker: UIDatePicker = {
         let picker = UIDatePicker()
         picker.datePickerMode = .date
@@ -66,20 +72,81 @@ class BirthdayViewController2: UIViewController {
   
     let nextButton = PointButton(title: "가입하기")
     
+    let disposeBag = DisposeBag()
+    
+    let text = PublishSubject<String>()
+    //BehaviorSubject(value: "")
+    //빌드하자마자 ""가 왜 레이블에 들어가는 걸까? -> PublishSubject 사용
+    
+    
     override func viewDidLoad() {
         super.viewDidLoad()
 
         view.backgroundColor = Color.white
         
         configureLayout()
+        bind()
+        aboutPublishSubject()
+        aboutBehaviorSubject()
         
-        nextButton.addTarget(self, action: #selector(nextButtonClicked), for: .touchUpInside)
     }
     
-    @objc func nextButtonClicked() {
-        navigationController?.pushViewController(SearchViewController(), animated: true)
+    func bind() {
+        text
+            .bind(to: infoLabel.rx.text)
+            .disposed(by: disposeBag)
+        
+        nextButton.rx.tap
+            .bind(with: self) { owner, _ in
+                print("가능 가능")
+                owner.text.onNext("가입 가능")
+            }
+            .disposed(by: disposeBag)
     }
+    
+    func aboutPublishSubject() {
+        let text = PublishSubject<String>()
+        text.onNext("칙촉")
+        text.onNext("칫솔")
+        
+        text
+            .subscribe(with: self) { owner, value in
+                print("PublishSubject next", value)
+            } onError: { owner, error in
+                print("PublishSubject error", error)
+            } onCompleted: { owner in
+                print("PublishSubject completed")
+            } onDisposed: { owner in
+                print("PublishSubject disposed")
+            }
+            .disposed(by: disposeBag)
+        
+        text.onNext("치약")
+        text.onError(JackError.invalid)
+        text.onNext("음료수")
+    }
+    
+    func aboutBehaviorSubject() {
+        let text = BehaviorSubject(value: "고래밥")
+        text.onNext("칙촉")
+        text.onNext("칫솔")
+        
+        text
+            .subscribe(with: self) { owner, value in
+                print("next", value)
+            } onError: { owner, error in
+                print("error", error)
+            } onCompleted: { owner in
+                print("completed")
+            } onDisposed: { owner in
+                print("disposed")
+            }
+            .disposed(by: disposeBag)
+        
+        text.onNext("치약")
+        text.onNext("음료수")
 
+    }
     
     func configureLayout() {
         view.addSubview(infoLabel)
