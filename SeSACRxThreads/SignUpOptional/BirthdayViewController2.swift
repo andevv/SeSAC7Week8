@@ -72,9 +72,10 @@ class BirthdayViewController2: UIViewController {
   
     let nextButton = PointButton(title: "가입하기")
     
+    let viewModel = BirthdayViewModel()
     let disposeBag = DisposeBag()
     
-    let text = PublishSubject<String>()
+    //let text = PublishSubject<String>()
     //BehaviorSubject(value: "")
     //빌드하자마자 ""가 왜 레이블에 들어가는 걸까? -> PublishSubject 사용
     
@@ -91,42 +92,80 @@ class BirthdayViewController2: UIViewController {
         
     }
     
-    func bind() {
+    func bind() { //Rx + IO + MVVM
+        //datePicker 날짜 input
+        //y, m, d output
         
-        //스트림이 공유되고 있지 않다.
-        //버튼이 세번 클릭되는 현상
-        //네트워크 콜을 3번 시도하는 상황이 될 수 있음
-        //.share() 사용
+        let input = BirthdayViewModel.Input(datePicker: birthDayPicker.rx.date)
+        let output = viewModel.transform(input: input)
         
-        let tap = nextButton.rx.tap
-            .map { "랜덤 \(Int.random(in: 1...100))" }
-            .asDriver(onErrorJustReturn: "")
-        
-        tap
-            .drive(yearLabel.rx.text)
+        output.year
+            .observe(on: MainScheduler.instance)
+            .bind(to: yearLabel.rx.text)
             .disposed(by: disposeBag)
-        
-        tap
+        output.month
+            .asDriver(onErrorJustReturn: "OO월")
             .drive(monthLabel.rx.text)
             .disposed(by: disposeBag)
-        
-        tap
+        output.day
+            .asDriver(onErrorJustReturn: "OO일")
             .drive(dayLabel.rx.text)
             .disposed(by: disposeBag)
-        
+    }
+    
+//    func bind() {
+//        
 //        text
-//            .asDriver(onErrorJustReturn: "unknown")
-//            .drive(yearLabel.rx.text)
-//            .disposed(by: disposeBag)
-//
-//        nextButton.rx.tap
-//            .asDriver()
-//            .drive(with: self) { owner, _ in
-//                owner.infoLabel.text = "입력했어요"
-//                owner.text.onError(JackError.invalid)
+//            .bind(with: self) { owner, value in
+//                print("next1", value)
 //            }
 //            .disposed(by: disposeBag)
-    }
+//        
+//        text
+//            .bind(with: self) { owner, value in
+//                print("next2", value)
+//            }
+//            .disposed(by: disposeBag)
+//        
+//        text
+//            .bind(with: self) { owner, value in
+//                print("next3", value)
+//            }
+//            .disposed(by: disposeBag)
+//        //스트림이 공유되고 있지 않다.
+//        //버튼이 세번 클릭되는 현상
+//        //네트워크 콜을 3번 시도하는 상황이 될 수 있음
+//        //.share() 사용
+//        
+//        let tap = nextButton.rx.tap
+//            .map { "랜덤 \(Int.random(in: 1...100))" }
+//            .asDriver(onErrorJustReturn: "")
+//        
+//        tap
+//            .drive(yearLabel.rx.text)
+//            .disposed(by: disposeBag)
+//        
+//        tap
+//            .drive(monthLabel.rx.text)
+//            .disposed(by: disposeBag)
+//        
+//        tap
+//            .drive(dayLabel.rx.text)
+//            .disposed(by: disposeBag)
+//        
+////        text
+////            .asDriver(onErrorJustReturn: "unknown")
+////            .drive(yearLabel.rx.text)
+////            .disposed(by: disposeBag)
+////
+////        nextButton.rx.tap
+////            .asDriver()
+////            .drive(with: self) { owner, _ in
+////                owner.infoLabel.text = "입력했어요"
+////                owner.text.onError(JackError.invalid)
+////            }
+////            .disposed(by: disposeBag)
+//    }
     
     func aboutPublishSubject() {
         let text = PublishSubject<String>()
