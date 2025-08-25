@@ -15,6 +15,7 @@ final class CustomObservable {
         return Observable<Int>.create { observer in
             
             observer.onNext(Int.random(in: 1...100))
+            observer.onCompleted() //메모리 누수 방지
             
             return Disposables.create()
         }

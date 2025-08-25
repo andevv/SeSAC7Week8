@@ -56,7 +56,10 @@ class HomeworkViewController: UIViewController {
         
         //커스텀 옵저버블 활용, 서치 탭 시 랜덤으로 숫자를 추가
         searchBar.rx.searchButtonClicked
-            .flatMap { return CustomObservable.randomNumber() }
+            .flatMap { CustomObservable.randomNumber()
+                    .debug("랜덤넘버 옵저버블")
+            }
+            .debug("서치바 옵저버블")
             .bind(with: self) { owner, number in
                 var data = owner.list.value
                 data.insert(number, at: 0)
