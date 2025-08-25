@@ -19,7 +19,7 @@ class HomeworkViewController: UIViewController {
     
     let disposeBag = DisposeBag()
     
-    let list: BehaviorRelay<[Int]> = BehaviorRelay(value: [])
+    let list: BehaviorRelay<[Lotto]> = BehaviorRelay(value: [])
     let items = BehaviorRelay(value: ["a", "b", "c"])
      
     override func viewDidLoad() {
@@ -32,7 +32,8 @@ class HomeworkViewController: UIViewController {
         list
             .bind(to: tableView.rx.items(cellIdentifier: PersonTableViewCell.identifier,
                                          cellType: PersonTableViewCell.self)) { (row, element, cell) in
-                cell.usernameLabel.text = "셀 \(element)"
+                let text = "\(element.drwNoDate)일, \(element.firstAccumamnt)원"
+                cell.usernameLabel.text = text
             }
                                          .disposed(by: disposeBag)
         
@@ -54,18 +55,41 @@ class HomeworkViewController: UIViewController {
             }
             .disposed(by: disposeBag)
         
-        //커스텀 옵저버블 활용, 서치 탭 시 랜덤으로 숫자를 추가
         searchBar.rx.searchButtonClicked
-            .flatMap { CustomObservable.randomNumber()
-                    .debug("랜덤넘버 옵저버블")
+            .withLatestFrom(searchBar.rx.text.orEmpty)
+            .distinctUntilChanged()
+            .flatMap { text in
+                CustomObservable.getLotto(query: text)
+                    .debug("로또 옵저버블")
             }
             .debug("서치바 옵저버블")
-            .bind(with: self) { owner, number in
+            .subscribe(with: self) { owner, lotto in
+                print("onNext", lotto)
                 var data = owner.list.value
-                data.insert(number, at: 0)
+                data.insert(lotto, at: 0)
                 owner.list.accept(data)
+            } onError: { owner, error in
+                print("onError", error)
+            } onCompleted: { owner in
+                print("onCompleted")
+            } onDisposed: { owner in
+                print("onDisposed")
             }
             .disposed(by: disposeBag)
+
+        
+//        //커스텀 옵저버블 활용, 서치 탭 시 랜덤으로 숫자를 추가
+//        searchBar.rx.searchButtonClicked
+//            .flatMap { CustomObservable.randomNumber()
+//                    .debug("랜덤넘버 옵저버블")
+//            }
+//            .debug("서치바 옵저버블")
+//            .bind(with: self) { owner, number in
+//                var data = owner.list.value
+//                data.insert(number, at: 0)
+//                owner.list.accept(data)
+//            }
+//            .disposed(by: disposeBag)
         
 //        searchBar.rx.searchButtonClicked
 //            .map { return CustomObservable.randomNumber() }
@@ -91,24 +115,24 @@ class HomeworkViewController: UIViewController {
 //            }
 //            .disposed(by: disposeBag)
         
-        CustomObservable.randomNumber()
-            .bind(with: self) { owner, number in
-                print("number", number)
-                owner.list.accept([number])
-            }
-            .disposed(by: disposeBag)
-        
-        CustomObservable.recommandNickname()
-            .subscribe(with: self) { owner, value in
-                owner.items.accept([value])
-            } onError: { owner, error in
-                print("onError", error)
-            } onCompleted: { owner in
-                print("onCompleted")
-            } onDisposed: { owner in
-                print("onDisposed")
-            }
-            .disposed(by: disposeBag)
+//        CustomObservable.randomNumber()
+//            .bind(with: self) { owner, number in
+//                print("number", number)
+//                owner.list.accept([number])
+//            }
+//            .disposed(by: disposeBag)
+//        
+//        CustomObservable.recommandNickname()
+//            .subscribe(with: self) { owner, value in
+//                owner.items.accept([value])
+//            } onError: { owner, error in
+//                print("onError", error)
+//            } onCompleted: { owner in
+//                print("onCompleted")
+//            } onDisposed: { owner in
+//                print("onDisposed")
+//            }
+//            .disposed(by: disposeBag)
     }
     
     private func configure() {

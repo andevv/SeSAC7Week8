@@ -7,8 +7,36 @@
 
 import Foundation
 import RxSwift
+import Alamofire
+
+struct Lotto: Decodable {
+    let drwNoDate: String
+    let firstAccumamnt: Int
+}
 
 final class CustomObservable {
+    
+    static func getLotto(query: String) -> Observable<Lotto> {
+        
+        return Observable<Lotto>.create { observer in
+            let url = "https://www.dhlottery.co.kr/common.do?method=getLottoNumber&drwNo=\(query)"
+            
+            AF.request(url).responseDecodable(of: Lotto.self) { response in
+                switch response.result {
+                case .success(let value):
+                    print(value)
+                    
+                    observer.onNext(value)
+                    observer.onCompleted()
+                    
+                case .failure(let error):
+                    print(error)
+                    observer.onError(JackError.invalid)
+                }
+            }
+            return Disposables.create()
+        }
+    }
     
     static func randomNumber() -> Observable<Int>  {
         
