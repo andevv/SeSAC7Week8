@@ -13,15 +13,14 @@ import Alamofire
 
 class HomeworkViewController: UIViewController {
     
+    let viewModel = HomeworkViewModel()
+    
     let tableView = UITableView()
     lazy var collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout())
     let searchBar = UISearchBar()
     
     let disposeBag = DisposeBag()
-    
-    let list: BehaviorRelay<[Lotto]> = BehaviorRelay(value: [])
-    let items = BehaviorRelay(value: ["a", "b", "c"])
-     
+
     override func viewDidLoad() {
         super.viewDidLoad()
         configure()
@@ -29,110 +28,25 @@ class HomeworkViewController: UIViewController {
     }
      
     private func bind() {
-        list
+        
+        let input = HomeworkViewModel.Input(searchTap: searchBar.rx.searchButtonClicked, searchText: searchBar.rx.text.orEmpty, cellSelected: tableView.rx.modelSelected(Int.self))
+        let output = viewModel.transform(input: input)
+        
+            output.list
             .bind(to: tableView.rx.items(cellIdentifier: PersonTableViewCell.identifier,
                                          cellType: PersonTableViewCell.self)) { (row, element, cell) in
-                let text = "\(element.drwNoDate)일, \(element.firstAccumamnt)원"
+                let text = "\(element.drwNoDate)일, \(element.firstAccumamnt.formatted())원"
                 cell.usernameLabel.text = text
             }
-                                         .disposed(by: disposeBag)
+             .disposed(by: disposeBag)
         
-        items
+        output.items
             .bind(to: collectionView.rx.items(
                 cellIdentifier: UserCollectionViewCell.identifier,
                 cellType: UserCollectionViewCell.self)) { (row, element, cell) in
                     cell.label.text = element
                 }
                 .disposed(by: disposeBag)
-        
-        tableView.rx.modelSelected(Int.self)
-            .map { "셀 \($0)" }
-            .bind(with: self) { owner, number in
-                var original = owner.items.value
-                original.insert(number, at: 0)
-                
-                owner.items.accept(original)
-            }
-            .disposed(by: disposeBag)
-        
-        searchBar.rx.searchButtonClicked
-            .withLatestFrom(searchBar.rx.text.orEmpty)
-            .distinctUntilChanged()
-            .flatMap { text in
-                CustomObservable.getLotto(query: text)
-                    .debug("로또 옵저버블")
-            }
-            .debug("서치바 옵저버블")
-            .subscribe(with: self) { owner, lotto in
-                print("onNext", lotto)
-                var data = owner.list.value
-                data.insert(lotto, at: 0)
-                owner.list.accept(data)
-            } onError: { owner, error in
-                print("onError", error)
-            } onCompleted: { owner in
-                print("onCompleted")
-            } onDisposed: { owner in
-                print("onDisposed")
-            }
-            .disposed(by: disposeBag)
-
-        
-//        //커스텀 옵저버블 활용, 서치 탭 시 랜덤으로 숫자를 추가
-//        searchBar.rx.searchButtonClicked
-//            .flatMap { CustomObservable.randomNumber()
-//                    .debug("랜덤넘버 옵저버블")
-//            }
-//            .debug("서치바 옵저버블")
-//            .bind(with: self) { owner, number in
-//                var data = owner.list.value
-//                data.insert(number, at: 0)
-//                owner.list.accept(data)
-//            }
-//            .disposed(by: disposeBag)
-        
-//        searchBar.rx.searchButtonClicked
-//            .map { return CustomObservable.randomNumber() }
-//            .bind(with: self, onNext: { owner, value in
-//                value
-//                    .bind(with: self) { owner, number in
-//                        var data = owner.list.value
-//                        data.insert(number, at: 0)
-//                        owner.list.accept(data)
-//                    }
-//                    .disposed(by: owner.disposeBag)
-//            })
-//            .disposed(by: disposeBag)
-        
-//        searchBar.rx.searchButtonClicked
-//            .withLatestFrom(searchBar.rx.text.orEmpty)
-//            .map { Int($0) ?? 0 }
-//            .bind(with: self) { owner, text in
-//                print(text)
-//                var data = owner.list.value
-//                data.insert(text, at: 0)
-//                owner.list.accept(data)
-//            }
-//            .disposed(by: disposeBag)
-        
-//        CustomObservable.randomNumber()
-//            .bind(with: self) { owner, number in
-//                print("number", number)
-//                owner.list.accept([number])
-//            }
-//            .disposed(by: disposeBag)
-//        
-//        CustomObservable.recommandNickname()
-//            .subscribe(with: self) { owner, value in
-//                owner.items.accept([value])
-//            } onError: { owner, error in
-//                print("onError", error)
-//            } onCompleted: { owner in
-//                print("onCompleted")
-//            } onDisposed: { owner in
-//                print("onDisposed")
-//            }
-//            .disposed(by: disposeBag)
     }
     
     private func configure() {
