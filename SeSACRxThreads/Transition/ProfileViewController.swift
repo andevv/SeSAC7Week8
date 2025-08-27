@@ -29,10 +29,19 @@ class ProfileViewController: UIViewController {
         let input = ProfileViewModel.Input(buttonTap: nextButton.rx.tap.asObservable())
         let output = viewModel.transform(input: input)
         
+        output.placeholder
+            .bind(to: passwordTextField.rx.placeholder)
+            .disposed(by: disposeBag)
+        
+        output.buttonTitle
+            .bind(to: nextButton.rx.title())
+            .disposed(by: disposeBag)
+        
         output.detail
-            .bind(with: self) { owner, value in
-                print(">>>>", value)
-                let vc = ProfileDetailViewController()
+            .drive(with: self) { owner, value in
+                print(">>>>", value, Thread.isMainThread)
+                let viewModel = ProfileDetailViewModel(text: value)
+                let vc = ProfileDetailViewController(viewModel: viewModel)
                 owner.navigationController?.pushViewController(vc, animated: true)
             }
             .disposed(by: disposeBag)

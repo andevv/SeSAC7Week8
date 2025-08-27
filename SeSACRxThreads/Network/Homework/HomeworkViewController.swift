@@ -13,7 +13,16 @@ import Alamofire
 
 class HomeworkViewController: UIViewController {
     
-    let viewModel = HomeworkViewModel()
+    private let viewModel: HomeworkViewModel
+    
+    init(viewModel: HomeworkViewModel) {
+        self.viewModel = viewModel
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
     
     let tableView = UITableView()
     lazy var collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout())

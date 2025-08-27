@@ -18,7 +18,9 @@ final class ProfileViewModel: BaseViewModel {
     }
     
     struct Output {
-        let detail: PublishRelay<String>
+        let detail: Driver<String>
+        let placeholder: Observable<String>
+        let buttonTitle: Observable<String>
     }
     
     func transform(input: Input) -> Output {
@@ -26,12 +28,14 @@ final class ProfileViewModel: BaseViewModel {
         let detail = PublishRelay<String>()
         
         input.buttonTap
+            .observe(on: ConcurrentDispatchQueueScheduler(qos: .default))
             .bind(with: self) { owner, _ in
+                print("1", Thread.isMainThread)
                 detail.accept("고래밥")
             }
             .disposed(by: disposeBag)
         
-        return Output(detail: detail)
+        return Output(detail: detail.asDriver(onErrorJustReturn: ""), placeholder: Observable.just("닉네임을 입력해주세요"), buttonTitle: Observable.just("다음"))
     }
     
 }
