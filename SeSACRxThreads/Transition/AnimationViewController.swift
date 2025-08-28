@@ -58,6 +58,13 @@ class AnimationViewController: UIViewController {
         
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        
+        let vc = FirstViewController()
+        navigationController?.pushViewController(vc, animated: true)
+    }
+    
     private func setAnimations() {
         logoImageView.alpha = 0
         logoImageView.transform = CGAffineTransform(scaleX: 0.1, y: 0.1)
