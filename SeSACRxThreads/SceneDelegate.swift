@@ -16,11 +16,11 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         guard let scene = (scene as? UIWindowScene) else { return }
         window = UIWindow(windowScene: scene)
         
-        let viewModel = HomeworkViewModel()
-        let vc = HomeworkViewController(viewModel: viewModel)
-        
-        let rootViewController = UINavigationController(rootViewController: vc)
-         
+//        let viewModel = HomeworkViewModel()
+//        let vc = HomeworkViewController(viewModel: viewModel)
+//        
+//        let rootViewController = UINavigationController(rootViewController: vc)
+        let rootViewController = UINavigationController(rootViewController: SettingViewController())
         window?.rootViewController = rootViewController
         window?.makeKeyAndVisible()
 
