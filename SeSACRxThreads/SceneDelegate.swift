@@ -20,7 +20,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 //        let vc = HomeworkViewController(viewModel: viewModel)
 //        
 //        let rootViewController = UINavigationController(rootViewController: vc)
-        let rootViewController = UINavigationController(rootViewController: SettingViewController())
+        let rootViewController = UINavigationController(rootViewController: AnimationViewController())
         window?.rootViewController = rootViewController
         window?.makeKeyAndVisible()
 
